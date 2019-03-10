@@ -1,0 +1,68 @@
+ #USER------------------------------------------------------------------
+ 
+ * User
+    user_id       auto integer
+    role_id       integer    
+    last_name     varchar
+    first_name    varchar
+    email         varchar
+    password      varchar
+    regtime       datetime
+    confirm       boolean
+
+* Role
+    role_id       auto integer
+    role_name     varchar
+
+#QUIZ------------------------------------------------------------------
+* Quiz
+    quiz_id     auto integer
+    start time  datatime
+    end time    datatime
+    quiz_name        varchar
+    (autor)user_id          integer  
+
+
+*Quiz_questions
+    quiz_id         integer
+    question_id     integer
+
+
+* Question
+    question_id       auto integer
+    question_text     varchar
+    is_active         bool
+
+* Question_choices
+    choice_id        auto integer
+    question_id      integer
+    choice_text      varchar
+    is_right_choice  bool
+
+* User_question_answer
+   user_id      integer
+   question_id  integer
+   choice_id    integer
+   is_right_choice  bool
+
+ #SCHOOL------------------------------------------------------------------
+
+ * School
+    school_id       auto integer
+    school_name     varchar
+    school_address  varchar
+    school_zip_code varchar
+    school_city     varchar
+
+* Course
+    course_id       auto integer
+    school_id       integer
+    course_name     varchar
+    description     text
+
+* CourseDetails
+    course_id       integer
+    user_id         integer
+    quiz_id         integer
+
+    
