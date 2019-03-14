@@ -1,4 +1,3 @@
-
 /** importy bibliotek */
 const express = require('express');
 /** walidator */
@@ -27,7 +26,24 @@ router.get('/userLogin', isAuth, userController.userMy);
 router.get('/usersAll',isAuth, userController.usersAll);
 router.get('/userTimetable',isAuth, userController.userTimetable);
 router.get('/usersTimetables',isAuth, userController.usersTimetables);
-router.post('/setDeputy',isAuth, userController.setDeputy);
+router.post('/setDeputy', [
+    body('idUser').not().isEmpty().withMessage('Brak id użytkownika'),
+    body('idUser')
+    .custom((value, {req}) => {
+        return User.find({
+            where: {
+                user_id:value,
+            }
+        }).then(user => {
+            if(!user) {
+                return Promise.reject('Podany użytkownik nie istnieje w bazie !');
+            }else if(user.role_id === 2) {
+                return Promise.reject('Podany użytkownik ma już nadane prawa !');
+
+            }
+        });
+    })
+] ,isAuth, userController.setDeputy);
 
 
 module.exports = router;

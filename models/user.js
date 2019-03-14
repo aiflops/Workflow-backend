@@ -14,6 +14,7 @@ const User = sequelize.define('user', {
         type:Sequelize.INTEGER,
         allowNull: false,
     },
+    //  1 - worker, 2 - pracownik
     last_name: {
         type:Sequelize.STRING,
         allowNull: false

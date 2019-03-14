@@ -116,9 +116,6 @@ exports.user = (req, res, next) => {
 
 }
 
-
-
-
 exports.usersAll = (req, res, next) => {
     checkToken(req);
 
@@ -169,26 +166,91 @@ exports.userTimetable = (req, res, next) => {
 }
 
 
+function changeExitValue(exit, returnVal){
+    returnVal[exit.userId].push({
+        id: exit.exitId,
+        status:exit.status,
+        exitDate:exit.exitDate,
+        exitStart_time:exit.exitStart_time,
+        duration: exit.duration,
+        overtime: {
+            overTimeId:exit.overTimeId,
+            overTimeDate: exit.overTimeDate,
+            overTimeStart_time: exit.overTimeStart_time,
+        }
+    });
+
+    return returnVal;
+}
+
 exports.usersTimetables = (req, res, next) => {
     checkToken(req);
 
-    res.status(200).json(
-        {
-            status: 200,
-            data: null,
-            message: "usersTimetables"
-        }
-    );
+    const query = "SELECT exitId, status, userUserId as 'userId', oes.exits.date as 'exitDate', oes.exits.time_start as 'exitStart_time', oes.overtimes.id as 'overTimeId', oes.overtimes.date as 'overTimeDate', oes.exits.time_start as 'overTimeStart_time', oes.exits.duration as 'duration' FROM oes.exits, oes.overtimes where oes.exits.id = oes.overtimes.exitId;"
+    sequelize.query(query)
+    .then(res=>{
+        const exits = res.pop();
+        let returnVal = {}
+        exits.forEach(exit => {
+
+            if(Array.isArray(returnVal[exit.userId])){
+                returnVal = changeExitValue(exit, returnVal);
+            }else{
+                returnVal[exit.userId] = [];
+                returnVal = changeExitValue(exit, returnVal);
+            } 
+            
+        });
+
+        return returnVal;
+    })
+    .then(value=>{
+        res.status(200).json(
+            {
+                status: 200,
+                data: value,
+                message: "usersTimetables"
+            }
+        );
+
+    })
+    .catch(
+        err => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+        next(err);
+    });
 }
 
 exports.setDeputy = (req, res, next) => {
     checkToken(req);
+    const  body = validation(req);
+    const idUser = body.idUser;
 
-    res.status(200).json(
-        {
-            status: 200,
-            data: null,
-            message: "setDeputy"
+    User.find({
+        where: {
+            user_id:idUser,
         }
-    );
+    }).then(user => {
+        user.update({
+            role_id: 2
+        })
+        .then(()=> {
+            res.status(200).json(
+                {
+                    status: 200,
+                    data: null,
+                    message: "Nadano prawa użytkownikowi"
+                }
+            );
+        })
+    })
+    .catch(
+        err => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+        next(err);
+    });
 }

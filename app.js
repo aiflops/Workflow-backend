@@ -34,6 +34,7 @@ app.use(bodyParser.json());
 
 var originsWhitelist = [
   'http://localhost:4200',
+  'http://localhost:1337',
   'http://www.myproductionurl.com'
 ];
 
