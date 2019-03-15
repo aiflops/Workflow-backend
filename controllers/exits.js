@@ -142,8 +142,9 @@ exports.editExit = (req, res, next) => {
 /** pobiera wyjscia */
 exports.getExit = (req, res, next) => {
     checkToken(req);
-    const  body = validation(req);
+    const body = req.query;
     const bodyId = body.idExit;
+
 
     Exits.findOne({where: {id: bodyId}}).then(exit=> {
         if(!exit){

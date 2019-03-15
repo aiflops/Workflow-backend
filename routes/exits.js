@@ -73,7 +73,6 @@ router.put('/edit',isAuth, [
 
 /** pobiera pojedyncze wyjcie */
 router.get('/get',isAuth, [
-    body('idExit').not().isEmpty().withMessage('Podaj id wyjścia'),
 ], exitController.getExit);
 
 /** pobiera historie wyjsc dla userID */
