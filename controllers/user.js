@@ -226,16 +226,23 @@ exports.usersTimetables = (req, res, next) => {
 exports.setDeputy = (req, res, next) => {
     checkToken(req);
     const  body = validation(req);
-    const idUser = body.idUser;
+    const idUser = body.id;
 
     User.find({
         where: {
             user_id:idUser,
         }
     }).then(user => {
-        user.update({
+        return user.update({
             role_id: 2
         })
+    })
+    .then((user)=> {
+        user.createExtendUser({
+            endExtend: body.endExtend,
+            startExtend: body.startExtend
+        })
+    })
         .then(()=> {
             res.status(200).json(
                 {
@@ -245,7 +252,6 @@ exports.setDeputy = (req, res, next) => {
                 }
             );
         })
-    })
     .catch(
         err => {
             if(!err.statusCode) {

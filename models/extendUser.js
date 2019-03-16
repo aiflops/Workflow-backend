@@ -10,7 +10,11 @@ const ExtendUser = sequelize.define('extendUser', {
         unique: true,
         allowNull: false
     },
-    timeEnd: {
+    endExtend: {
+        type: Sequelize.DATEONLY,
+        allowNull: false,
+    },
+    startExtend: {
         type: Sequelize.DATEONLY,
         allowNull: false,
     }
