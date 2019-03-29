@@ -75,10 +75,6 @@ router.put('/edit',isAuth, [
 router.get('/get',isAuth, [
 ], exitController.getExit);
 
-/** pobiera historie wyjsc dla userID */
-router.get('/getUserExitsId',isAuth, [
-    body('id').not().isEmpty().withMessage('Podaj id użytkownika'),
-], exitController.getExits);
 
 /** pobiera historie wyjsc dla zalogowane */
 router.get('/getUserExits', isAuth, exitController.getUserExits)
@@ -90,11 +86,7 @@ router.post('/delete',isAuth,[
 
 
 /** pobiera wyjścia z przedziału czasowego */
-router.get('/getExitsFromTime', isAuth, [
-    body('idUser').not().isEmpty().withMessage('podaj id użytkownka'),
-    body('startTime').not().isEmpty().withMessage('podaj poczatek okresu'),
-    body('stopTime').not().isEmpty().withMessage('podaj koniec okresu'),
-], exitController.getExitsFromTime);
+router.get('/getExitsFromTime', isAuth, exitController.getExitsFromTime);
 
 
 router.get('/getUsersExits', isAuth,[

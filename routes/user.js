@@ -17,18 +17,13 @@ const extendUser = require('../models/extendUser');
 
 
 
-router.get('/user', isAuth, [
-    body('id').not().isEmpty().withMessage('Brak id użytkownika'),
-], userController.user);
-
 router.get('/userLogin', isAuth, userController.userMy);
 
 router.get('/usersAll',isAuth, userController.usersAll);
-router.get('/userTimetable',isAuth, userController.userTimetable);
 router.get('/usersTimetables',isAuth, userController.usersTimetables);
 router.post('/setDeputy', [
-    body('idUser').not().isEmpty().withMessage('Brak id użytkownika'),
-    body('idUser')
+    body('id').not().isEmpty().withMessage('Brak id użytkownika'),
+    body('id')
     .custom((value, {req}) => {
         return User.find({
             where: {
@@ -42,7 +37,9 @@ router.post('/setDeputy', [
 
             }
         });
-    })
+    }),
+    body('endExtend').not().isEmpty().withMessage('Brak endExtend'),
+    body('startExtend').not().isEmpty().withMessage('Brak startExtend')
 ] ,isAuth, userController.setDeputy);
 
 

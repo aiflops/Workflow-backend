@@ -172,16 +172,16 @@ exports.getExit = (req, res, next) => {
 /** pobiera wyjscia dla user o parametrze i */
 exports.getExits = (req, res, next) => {
     checkToken(req);
-    const  body = validation(req);
-    const id = body.id;
+    const body = req.query;
 
-    User.findOne({where: {user_id : id}}).then(user=> {
+
+    User.findOne({where: {user_id : body.id}}).then(user=> {
         if(!user || user.activeAccount == 0){
             const error = new Error('Podany użytkownik nie istnieje w bazie danych.');
             error.statusCode = 401;
             throw error;
         }else {
-            sequelize.query('SELECT id, date, time_start, duration, status, topic  FROM exits WHERE userUserId = '+ user.user_id ).then()
+            sequelize.query('SELECT *  FROM exits WHERE userUserId = '+ user.user_id ).then()
             .then(exits => {
                 return exits.pop();
               }).then(exits=> {
@@ -277,7 +277,7 @@ exports.deleteExit = (req, res, next) => {
 
 exports.getExitsFromTime = (req, res, next) => {
     checkToken(req);
-    const  body = validation(req);
+    const body = req.query;
 
     const strQuery =  "SELECT *  FROM exits WHERE (userUserId = '"+ body.idUser +"') AND (date between '" + body.startTime + "' AND'" + body.stopTime+"')"
     console.log('strQuery', strQuery);

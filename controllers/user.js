@@ -79,42 +79,6 @@ exports.userMy = (req, res, next) => {
 
 }
 
-exports.user = (req, res, next) => {
-    checkToken(req);
-    const  body = validation(req);
-    const id = body.id;
-
-    User.findOne({where: {user_id : id}}).then(user=> {
-        if(!user || user.activeAccount == 0){
-            const error = new Error('Podany użytkownik nie istnieje w bazie danych.');
-            error.statusCode = 401;
-            throw error;
-        }else {
-            
-            res.status(200).json(
-                {
-                    status: 200,
-                    data: {
-                        id: user.user_id,
-                        email: user.email,
-                        firstName: user.first_name,
-                        lastName: user.last_name,
-                        roleId: user.role_id
-                    },
-                    message: ''
-                }
-            );
-        }
-    })
-    .catch(
-                err => {
-                    if(!err.statusCode) {
-                        err.statusCode = 500;
-                    }
-                next(err);
-            });
-
-}
 
 exports.usersAll = (req, res, next) => {
     checkToken(req);
@@ -150,19 +114,6 @@ exports.usersAll = (req, res, next) => {
                 next(err);
             });
 
-}
-
-
-exports.userTimetable = (req, res, next) => {
-    checkToken(req);
-
-    res.status(200).json(
-        {
-            status: 200,
-            data: null,
-            message: "userTimetable"
-        }
-    );
 }
 
 
