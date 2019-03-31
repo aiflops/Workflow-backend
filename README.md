@@ -11,12 +11,13 @@ Mysql
 Implemented own Authorization<br>
 Implemented messeges on email<br>
 Implemented rest APi for front end<br>
+Implemented worker permissions and boss permissions <br>
 
 # Docs for REST functions:
 
 
 
 #### {url}/exit/create
-create one exit <br> 
+create exit, overtime and sends email to boss
 ###### params
 { date,timeStart, duration, topic, desc, idUser, overTimeDate, timeStartOverTime}
