@@ -16,5 +16,7 @@ Implemented rest APi for front end<br>
 
 
 
-{url}/exit/create - create one exit <br> 
-params:{ 	date,timeStart, duration, topic, desc, idUser, overTimeDate, timeStartOverTime}
+#### {url}/exit/create
+create one exit <br> 
+###### params
+{ date,timeStart, duration, topic, desc, idUser, overTimeDate, timeStartOverTime}
