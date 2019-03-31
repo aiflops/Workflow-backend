@@ -3,8 +3,34 @@ const { validationResult } = require('express-validator/check');
 const User = require('../models/user');
 const Exits = require('../models/exits');
 const OverTime = require('../models/overTimes');
+
+const ExitAswerURL = require('../models/exitAnswerURLs');
 const jwt = require('jsonwebtoken');
 const sequelize = require('../assets/sequlize');
+
+const nodemailer = require('nodemailer');
+
+
+/** transporter dla gmail  */
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+           user: 'oes.mail.test@gmail.com',
+           pass: '4sFrNwUByS'
+       }
+   });
+
+
+/** funkcja generujaca email */
+ function generateEmail(from, to, subject, html){
+     return {
+        from: from,
+        to: to,
+        subject: subject,
+        html: html
+     }
+ }  
 
 
 /** funkcja walidacji zwraca nam wsztkie zadane pola, jesli przeszla walidacja */
@@ -41,6 +67,9 @@ exports.createExit = (req, res, next) => {
     checkToken(req);
     const  body = validation(req);
 
+    let nameUser;
+    let exitGlobal; 
+    let exitAswerURL;
 
     User.findOne({where : {user_id: body.idUser}}).then(user=> {
         if(!user || user.activeAccount == 0){
@@ -48,6 +77,7 @@ exports.createExit = (req, res, next) => {
             error.statusCode = 403;
             throw error;
         } else {
+            nameUser = user.first_name + ' ' + user.last_name;
             return user.createExit({
                 date: body.date,
                 time_start: body.timeStart,
@@ -57,6 +87,7 @@ exports.createExit = (req, res, next) => {
             });
         }
     }).then(exit=> {
+        exitGlobal = exit;
         return exit.createOverTime({
             date: body.overTimeDate,
             time_start: body.timeStartOverTime,
@@ -71,8 +102,70 @@ exports.createExit = (req, res, next) => {
                 {
                     status: 200,
                     data: null,
-                    message: "Wyjście i termin odrobczy zostało dodane zostało dodane"
+                    message: "Wyjście zostało dodane zostało dodane"
                 });
+        return overtime
+        }else return null;
+    })
+    .then(overtime=>{
+        if(overtime){
+
+            
+            let accept = Math.random().toString(36).substring(7);
+            let refuse = Math.random().toString(36).substring(7);
+
+            const content = '<h2>Pracownik: ' + nameUser + '  prosi o wyjście</h2>'+
+                            '<div>'+
+                            '<p> <b>Tytuł wyjścia:</b> '+ exitGlobal.topic + '</p>'+
+                            '<p> <b>Data wyjścia:</b> '+ exitGlobal.date +' </p>'+
+                            '<p> <b>Godzina wyjścia:</b> '+ exitGlobal.time_start +'</p>'+
+                            '<p> <b>Czas trwania:</b> '+ exitGlobal.duration +'</p>'+
+                            '<p> <b>Opis :</b> '+ exitGlobal.desc +'</p>'+
+                            '<p> <b>Termin odróbczy :</b> '+ overtime.date +' o godzinie '+ overtime.time_start +'</p>'+
+                            '</div>'+
+                            '<p>Aby akceptować kliknij  http://localhost:4200/confirm/'+ accept + ' link</p>'+
+                            '<p>Aby odrzucić kliknij  http://localhost:4200/refuse/'+ refuse + ' link</p>';
+
+            User.findAll({where : {role_id: 2}}).then( users=> {
+                return users.map(user=> {
+                    return {
+                        email: user['dataValues']['email'],
+                        id: user['dataValues']['user_id']
+                }
+                })
+            }).then(users=>{
+
+                users.forEach(boss=> {
+                
+                const mailOptions= generateEmail(
+                    'oes.mail.test@gmail.com', 
+                        boss.email,
+                        'Pracownik: ' + nameUser + ' prosi o wyjście',
+                        content
+                );
+                transporter.sendMail(mailOptions, (err, info) => {
+                    if(info){
+                        exitGlobal.createMessageUser({
+                            id_boss: boss.id
+                        }).then(
+                            ()=>{
+                                ExitAswerURL.findOrCreate({
+                                    where: {
+                                        accept_hash: accept,
+                                        exitId: exitGlobal.id
+                                    },
+                                    defaults: {
+                                        accept_hash: accept,
+                                        reject_hash: refuse,
+                                        exitId: exitGlobal.id
+                                    }
+                                });
+                            }
+                        )
+                    }
+                });
+            });
+            });
         }
     })
     .catch( err=> {
@@ -89,7 +182,8 @@ exports.editExit = (req, res, next) => {
     checkToken(req);
     const  body = validation(req);
     const bodyId = body.idExit;
-
+    let nameUser;
+    let exitGlobal;
 
     Exits.findOne({where: {id: bodyId}}).then(exit=>{
         if(!exit){
@@ -100,14 +194,22 @@ exports.editExit = (req, res, next) => {
             return exit
         }
     }).then(exit=> {
+        sequelize.query('select * from users where user_id = '+ exit.userUserId).then(
+            user=> {
+                userF= user[0].pop();
+                nameUser = userF.first_name + ' ' + userF.last_name;
+            }
+        )
         return exit.update({
                 date: body.date,
                 time_start: body.timeStart,
                 duration: body.duration,
                 topic: body.topic,
-                desc:body.desc 
+                desc:body.desc,
+                status: 0 
             });
         }).then((exit)=>{
+            exitGlobal = exit
             return OverTime.findOne({where: {exitId: exit.id}})
         }).then((overtime)=> {
 
@@ -127,7 +229,74 @@ exports.editExit = (req, res, next) => {
                         message: "Dokonano edycji danych"
                     }
                     );        
+                return overtime;
                 }
+                else { return null;}
+                
+    })
+    .then(overtime=>{
+        if(overtime){
+
+            let accept = Math.random().toString(36).substring(7);
+            let refuse = Math.random().toString(36).substring(7);
+            
+
+            const content = '<h2>Pracownik: ' + nameUser + '  prosi o wyjście</h2>'+
+                            '<div>'+
+                            '<p> <b>Tytuł wyjścia:</b> '+ exitGlobal.topic + '</p>'+
+                            '<p> <b>Data wyjścia:</b> '+ exitGlobal.date +' </p>'+
+                            '<p> <b>Godzina wyjścia:</b> '+ exitGlobal.time_start +'</p>'+
+                            '<p> <b>Czas trwania:</b> '+ exitGlobal.duration +'</p>'+
+                            '<p> <b>Opis :</b> '+ exitGlobal.desc +'</p>'+
+                            '<p> <b>Termin odróbczy :</b> '+ overtime.date +' o godzinie '+ overtime.time_start +'</p>'+
+                            '</div>'+
+                            '<p>Aby akceptować kliknij  http://localhost:4200/confirm/'+ accept + ' link</p>'+
+                            '<p>Aby odrzucić kliknij  http://localhost:4200/refuse/'+ refuse + ' link</p>';
+
+            User.findAll({where : {role_id: 2}}).then( users=> {
+                return users.map(user=> {
+                    return {
+                        email: user['dataValues']['email'],
+                        id: user['dataValues']['user_id']
+                }
+                })
+            }).then(users=>{
+
+                users.forEach(boss=> {
+                
+                const mailOptions= generateEmail(
+                    'oes.mail.test@gmail.com', 
+                        boss.email,
+                        'Pracownik: ' + nameUser + ' edytowal wyjście',
+                        content
+                );
+
+
+                transporter.sendMail(mailOptions, (err, info) => {
+                    if(info){
+                        exitGlobal.createMessageUser({
+                            id_boss: boss.id
+                        }).then(
+                            ()=>{
+                                ExitAswerURL.findOrCreate({
+                                    where: {
+                                        accept_hash: accept,
+                                        exitId: exitGlobal.id
+                                    },
+                                    defaults: {
+                                        accept_hash: accept,
+                                        reject_hash: refuse,
+                                        exitId: exitGlobal.id
+                                    }
+                                });
+                            }
+                        )
+                    }
+                });
+            
+            });
+            })
+        }
     })    
     .catch(
         err => {
