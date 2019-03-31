@@ -8,9 +8,9 @@ Sequalize,
 Mysql
 
 # Interesting implementations:
-Implemented owm Authorization
-Implemented messeges on email
-Implemented rest APi for front end
+Implemented own Authorization<br>
+Implemented messeges on email<br>
+Implemented rest APi for front end<br>
 
 # Docs for REST functions:
 
