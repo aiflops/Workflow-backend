@@ -15,3 +15,6 @@ Implemented rest APi for front end<br>
 # Docs for REST functions:
 
 
+
+{url}/exit/create - create one exit <br> 
+params:{ 	date,timeStart, duration, topic, desc, idUser, overTimeDate, timeStartOverTime}
