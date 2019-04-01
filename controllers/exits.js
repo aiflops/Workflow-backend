@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const sequelize = require('../assets/sequlize');
 
 const nodemailer = require('nodemailer');
+const Password = require('../middleware/password');
 
 
 /** transporter dla gmail  */
@@ -17,7 +18,7 @@ var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
            user: 'oes.mail.test@gmail.com',
-           pass: '4sFrNwUByS'
+           pass: Password
        }
    });
 
@@ -525,17 +526,17 @@ exports.acceptExit = (req,res, next) => {
                     {
                         status: 200,
                         data: null,
-                        message: 'Udana zmiana statusu wyjścia'
+                        message: 'Udana zmiana statusu wyjścia - potwierdzone'
                     }
                   );
             });
 
         }else {
-            res.status(200).json(
+            res.status(401).json(
                 {
-                    status: 200,
+                    status: 401,
                     data: null,
-                    message: 'Wystąpił nieoczekiwany błąd'
+                    message: 'Brak obiektu'
                 }
               );
         }
@@ -552,4 +553,52 @@ exports.acceptExit = (req,res, next) => {
 exports.refuseExit = (req,res, next) => {
     const  body = validation(req);
     const hash = body.hash;
+
+    ExitAswerURL.findOne({
+        where: {
+            reject_hash: hash
+        }
+    })
+    .then(exitUrl => {
+
+        return Exits.findOne({
+            where: {
+                id: exitUrl.exitId,
+                status: 0
+            }
+        });
+    })
+    .then(exit => {
+        if(exit){
+            exit.update(
+                {
+                    status: 1,
+                }
+            ).then(()=> {
+                res.status(200).json(
+                    {
+                        status: 200,
+                        data: null,
+                        message: 'Udana zmiana statusu wyjścia - odrzucone'
+                    }
+                  );
+            });
+
+        } else {
+            res.status(401).json(
+                {
+                    status: 401,
+                    data: null,
+                    message: 'Brak obiektu'
+                }
+              );
+        }
+    }).catch(
+        err => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+        next(err);
+    });
+
 }
