@@ -494,3 +494,62 @@ exports.getUsersExits = (req, res, next) => {
             next(err);
         });
 }
+
+exports.acceptExit = (req,res, next) => {
+
+    const  body = validation(req);
+    const hash = body.hash;
+
+    ExitAswerURL.findOne({
+        where: {
+            accept_hash: hash
+        }
+    })
+    .then(exitUrl => {
+
+        return Exits.findOne({
+            where: {
+                id: exitUrl.exitId,
+                status: 0
+            }
+        });
+    })
+    .then(exit => {
+        if(exit){
+            exit.update(
+                {
+                    status: 2,
+                }
+            ).then(()=> {
+                res.status(200).json(
+                    {
+                        status: 200,
+                        data: null,
+                        message: 'Udana zmiana statusu wyjścia'
+                    }
+                  );
+            });
+
+        }else {
+            res.status(200).json(
+                {
+                    status: 200,
+                    data: null,
+                    message: 'Wystąpił nieoczekiwany błąd'
+                }
+              );
+        }
+    }).catch(
+        err => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+        next(err);
+    });
+
+}
+
+exports.refuseExit = (req,res, next) => {
+    const  body = validation(req);
+    const hash = body.hash;
+}

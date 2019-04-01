@@ -93,4 +93,12 @@ router.get('/getUsersExits', isAuth,[
 
 ] , exitController.getUsersExits);
 
+router.post('/accept', [
+    body('hash').not().isEmpty().withMessage('Podaj hash'),
+], exitController.acceptExit);
+
+router.post('/refuse', [
+    body('hash').not().isEmpty().withMessage('Podaj hash'),
+], exitController.refuseExit);
+
 module.exports = router;
