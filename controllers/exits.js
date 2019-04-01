@@ -529,6 +529,24 @@ exports.acceptExit = (req,res, next) => {
                         message: 'Udana zmiana statusu wyjścia - potwierdzone'
                     }
                   );
+
+                 /** todo wysyłanie mail z odp */ 
+
+                 User.findOne({
+                     where: {
+                        user_id: exit.userUserId
+                    }
+                 }).then(user=> {
+                    const mailOptions= generateEmail(
+                        'oes.mail.test@gmail.com', 
+                        user.email,
+                        'Potwierdzenie',
+                        'Twoje wyjście zostało potwierdzone'
+                    );
+    
+    
+                    transporter.sendMail(mailOptions, (err, info) => {});
+                 });
             });
 
         }else {
@@ -582,6 +600,24 @@ exports.refuseExit = (req,res, next) => {
                         message: 'Udana zmiana statusu wyjścia - odrzucone'
                     }
                   );
+
+                User.findOne({
+                    where: {
+                       user_id: exit.userUserId
+                    }
+                }).then(user=> {
+                   const mailOptions= generateEmail(
+                       'oes.mail.test@gmail.com', 
+                       user.email,
+                       'Odrzucenie',
+                       'Twoje wyjście zostało odrzucone'
+                   );
+   
+   
+                   transporter.sendMail(mailOptions, (err, info) => {});
+                });
+
+
             });
 
         } else {
