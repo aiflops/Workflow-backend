@@ -64,6 +64,7 @@ function checkToken(req){
 }
 
 /** tworzy wyjscia */
+//  transaction
 exports.createExit = (req, res, next) => {
     checkToken(req);
     const  body = validation(req);
@@ -179,6 +180,7 @@ exports.createExit = (req, res, next) => {
 }
 
 /** edytuje wyjscia */
+// transaction
 exports.editExit = (req, res, next) => {
     checkToken(req);
     const  body = validation(req);
@@ -425,23 +427,38 @@ exports.deleteExit = (req, res, next) => {
     const  body = validation(req);
     const bodyId = body.idExit;
 
-    Exits.destroy({where: {id: bodyId}}).then(()=> {
-    OverTime.destroy({where: {exitId: null}}).then(()=> {
-                res.status(200).json(
-                    {
-                        status: 200,
-                        data: null,
-                        message: 'Usunięto'
-                    }
-                  );
-        })
-    }).catch(
+    sequelize.transaction((t1)=> {
+        OverTime.destroy({where: {exitId: bodyId}});
+        Exits.destroy({where: {id: bodyId}});
+    }).then(() => {
+            res.status(200).json(
+                {
+                    status: 200,
+                    data: null,
+                    message: 'Usunięto'
+                }
+              );
+     })
+    .catch(
         err => {
             if(!err.statusCode) {
                 err.statusCode = 500;
             }
         next(err);
     });
+    
+    // Exits.destroy({where: {id: bodyId}}).then(()=> {
+    // OverTime.destroy({where: {exitId: null}}).then(()=> {
+    //             res.status(200).json(
+    //                 {
+    //                     status: 200,
+    //                     data: null,
+    //                     message: 'Usunięto'
+    //                 }
+    //               );
+    //     })
+    // })
+
 }
 
 

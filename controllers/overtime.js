@@ -39,20 +39,6 @@ function checkToken(req){
 }
 
 
-
-/** edytuje overtime */
-exports.editOvertime = (req, res, next) => {
-    checkToken(req);
-
-    res.status(200).json(
-        {
-            status: 200,
-            data: null,
-            message: "Edycja"
-        }
-    );
-}
-
 /** pobiera overtime */
 exports.getOvertime = (req, res, next) => {
     checkToken(req);
@@ -85,31 +71,4 @@ exports.getOvertime = (req, res, next) => {
     });
 
 
-}
-
-/** pobiera overtimes */
-exports.getOvertimes = (req, res, next) => {
-    checkToken(req);
-
-    res.status(200).json(
-        {
-            status: 200,
-            data: null,
-            message: "Pobrano listę "
-        }
-    );
-}
-
-
-/** usuwa overtime */
-exports.deleteOvetime = (req, res, next) => {
-    checkToken(req);
-
-    res.status(200).json(
-        {
-            status: 200,
-            data: null,
-            message: "Usunieto"
-        }
-    );
 }

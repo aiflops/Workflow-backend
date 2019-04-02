@@ -173,41 +173,46 @@ exports.usersTimetables = (req, res, next) => {
         next(err);
     });
 }
-
 exports.setDeputy = (req, res, next) => {
     checkToken(req);
     const  body = validation(req);
     const idUser = body.id;
 
-    User.find({
-        where: {
-            user_id:idUser,
-        }
-    }).then(user => {
-        return user.update({
-            role_id: 2
-        })
-    })
-    .then((user)=> {
-        user.createExtendUser({
+    let globalUser;
+        User.find({
+            where: {
+                user_id:idUser,
+            },
+   
+        }).then(user => {
+            globalUser = user;
+    sequelize.transaction((t1)=> {
+        globalUser.update({
+            role_id: 2,
+            transaction: t1
+        });
+
+        globalUser.createExtendUser({
             endExtend: body.endExtend,
-            startExtend: body.startExtend
+            startExtend: body.startExtend,
+            transaction: t1
         })
-    })
-        .then(()=> {
-            res.status(200).json(
-                {
-                    status: 200,
-                    data: null,
-                    message: "Nadano prawa użytkownikowi"
+            })
+        }).then(()=> {
+                res.status(200).json(
+                    {
+                        status: 200,
+                        data: null,
+                        message: "Nadano prawa użytkownikowi"
+                    }
+                );
+            })
+        .catch(
+            err => {
+                if(!err.statusCode) {
+                    err.statusCode = 500;
                 }
-            );
-        })
-    .catch(
-        err => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
-        next(err);
-    });
+            next(err);
+        });
+   
 }

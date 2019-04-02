@@ -18,10 +18,7 @@ const isAuth =  require('../middleware/is-auth');
 const overtimeController = require('../controllers/overtime');
 
 /** sprawdza czy użytkownk jest zalogowany, wymagany token  */
-router.put('/edit',isAuth, overtimeController.editOvertime);
 
 router.get('/get/:id',isAuth, overtimeController.getOvertime);
-router.get('/getList',isAuth, overtimeController.getOvertimes);
-router.delete('/delete',isAuth, overtimeController.deleteOvetime);
 
 module.exports = router;
