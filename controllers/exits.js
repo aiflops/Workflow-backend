@@ -507,7 +507,8 @@ exports.getExitsFromTime = (req, res, next) => {
     checkToken(req);
     const body = req.query;
 
-    const strQuery =  "SELECT *  FROM exits WHERE (userUserId = '"+ body.idUser +"') AND (date between '" + body.startTime + "' AND'" + body.stopTime+"')"
+    console.log(body);
+    const strQuery =  "SELECT *  FROM exits WHERE (userUserId = '"+ body.id +"') AND (date between '" + body.startTime + "' AND'" + body.stopTime+"') ORDER BY date"
     console.log('strQuery', strQuery);
     sequelize.query(strQuery,
        ).then(exits=> {
