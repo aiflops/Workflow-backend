@@ -78,6 +78,7 @@ router.get('/get',isAuth, [
 
 /** pobiera historie wyjsc dla zalogowane */
 router.get('/getUserExits', isAuth, exitController.getUserExits)
+router.get('/getUserExits2', isAuth, exitController.getUserExits2)
 
 /** usuniecie wyjscia */
 router.post('/delete',isAuth,[

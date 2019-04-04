@@ -421,6 +421,47 @@ exports.getUserExits = (req, res, next) => {
 }
 
 
+/** pobiera wyjscia */
+exports.getUserExits2 = (req, res, next) => {
+    checkToken(req);
+    const body = req.query;
+
+    const authHeader = req.get('Authorization');
+    const token = authHeader.split(' ')[1];
+    let decodedToken = jwt.verify(token, 'somesupersecretsecret');    
+
+    User.findOne({where: {email: decodedToken.email}}).then(user=> {
+        if(!user || user.activeAccount == 0){
+            const error = new Error('Podany użytkownik nie istnieje w bazie danych.');
+            error.statusCode = 401;
+            throw error;
+        }else {
+            sequelize.query("SELECT *  FROM exits WHERE (userUserId = '"+ body.idUser +"') AND (date between '" + body.startTime + "' AND'" + body.stopTime+"')").then()
+            .then(exits => {
+                return exits.pop();
+              }).then(exits=> {
+
+                  res.status(200).json(
+                    {
+                        status: 200,
+                        data: exits,
+                        message: null
+                    }
+                  );
+
+              });
+        }
+    })
+    .catch(
+                err => {
+                    if(!err.statusCode) {
+                        err.statusCode = 500;
+                    }
+                next(err);
+            });
+}
+
+
 /** usuwa wyjscia */
 exports.deleteExit = (req, res, next) => {
     checkToken(req);
