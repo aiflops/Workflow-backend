@@ -19,4 +19,4 @@ Implemented worker permissions and boss permissions <br>
 
 #### POST: {url}/exit/create
 ###### params {date, timeStart, duration, topic, desc, idUser, overTimeDate, timeStartOverTime}
-DESC: Creates exit and overtime, also sends email to boss.
+###### desc: Creates exit and overtime, also sends email to boss.
