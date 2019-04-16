@@ -10,7 +10,7 @@ Mysql
 ## Interesting implementations:
 Implemented own Authorization<br>
 Implemented messeges on email<br>
-Implemented rest APi for front end<br>
+Implemented rest API<br>
 Implemented worker permissions and boss permissions <br>
 
 ## Docs for REST functions:
@@ -18,5 +18,4 @@ Implemented worker permissions and boss permissions <br>
 
 
 #### POST: {url}/exit/create
-###### params {date, timeStart, duration, topic, desc, idUser, overTimeDate, timeStartOverTime}
-###### desc: Creates exit and overtime, also sends email to boss.
+###### params {date, timeStart, duration, topic, desc, idUser, overTimeDate, timeStartOverTime} <br> desc: Creates exit and overtime, also sends email to boss.
